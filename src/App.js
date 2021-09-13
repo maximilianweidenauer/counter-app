@@ -1,69 +1,73 @@
-import React, { Component } from "react";
+import React, { useState } from "react";
 import NavBar from "./components/navbar";
 import Counters from "./components/counters";
+import { ReactUI, useAPI } from 'reactUI/dist/moduleIndex'
+import 'primeicons/primeicons.css';
+import ScreenWrapperTest from "./components/ScreenWrapperTest";
 
-class App extends Component {
-  state = {
-    counters: [
-      { id: 1, value: 0 },
-      { id: 2, value: 0 },
-      { id: 3, value: 0 },
-      { id: 4, value: 0 }
-    ]
-  };
+const App = () => {
+  const api = useAPI();
 
-  handleIncrement = counter => {
-    const counters = [...this.state.counters];
-    const index = counters.indexOf(counter);
-    counters[index] = { ...counters[index] };
-    counters[index].value++;
-    this.setState({ counters });
-  };
+  const [counters, setCounters] = useState([
+    { id: 1, value: 0 },
+    { id: 2, value: 0 },
+    { id: 3, value: 0 },
+    { id: 4, value: 0 }]);
 
-  handleDecrement = counter => {
-    const counters = [...this.state.counters];
-    const index = counters.indexOf(counter);
-    counters[index] = { ...counters[index] };
-    counters[index].value--;
-    this.setState({ counters });
-  };
+  const handleIncrement = (counter) => {
+    const countersCopy = [...counters];
+    const index = countersCopy.indexOf(counter);
+    countersCopy[index] = { ...counters[index] };
+    countersCopy[index].value++;
+    setCounters(countersCopy);
+  }
 
-  handleReset = () => {
-    const counters = this.state.counters.map(c => {
+  const handleDecrement = (counter) => {
+    const countersCopy = [...counters];
+    const index = countersCopy.indexOf(counter);
+    countersCopy[index] = { ...countersCopy[index] };
+    countersCopy[index].value--;
+    setCounters(countersCopy);
+  }
+
+  const handleReset = () => {
+    const newCounters = counters.map(c => {
       c.value = 0;
       return c;
     });
-    this.setState({ counters });
+    setCounters(newCounters);
   };
 
-  handleDelete = counterId => {
-    const counters = this.state.counters.filter(c => c.id !== counterId);
-    this.setState({ counters });
+  const handleDelete = (counterId) => {
+    const newCounters = counters.filter(c => c.id !== counterId);
+    setCounters(newCounters);
   };
 
-  handleRestart = () => {
+  const handleRestart = () => {
     window.location.reload();
   };
 
-  render() {
-    return (
-      <div>
-        <NavBar
-          totalCounters={this.state.counters.filter(c => c.value > 0).length}
-        />
-        <main className="container">
-          <Counters
-            counters={this.state.counters}
-            onReset={this.handleReset}
-            onIncrement={this.handleIncrement}
-            onDecrement={this.handleDecrement}
-            onDelete={this.handleDelete}
-            onRestart={this.handleRestart}
-          />
-        </main>
-      </div>
-    );
+  const onLogin = () => {
+    api.addScreenWrapper("CouWel-LV", <ScreenWrapperTest/>)
   }
-}
 
+  return (
+    <div>
+      <NavBar
+        totalCounters={counters.filter(c => c.value > 0).length}
+      />
+      <main className="container">
+        <Counters
+          counters={counters}
+          onReset={handleReset}
+          onIncrement={handleIncrement}
+          onDecrement={handleDecrement}
+          onDelete={handleDelete}
+          onRestart={handleRestart}
+        />
+        <ReactUI style={{height: '500px'}} onLogin={onLogin} embedded embeddedOptions={{appName:"countertest", baseUrl:"http://localhost/services/mobile", language:"de", userName:"admin", password:"admin"}}/>
+      </main>
+    </div>
+  );
+}
 export default App;
